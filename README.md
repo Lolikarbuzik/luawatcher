@@ -5,16 +5,18 @@
 ## Lua
 
 ```lua
-local watcher = Watcher.new()
+local LuaWatcher = require("luawatcher")
+local watcher = LuaWatcher.new()
 local players = watcher:watch({
     "me",
     "you"
-}, "players") -- Identifier for the watched value
+}, "players") -- Display name for the watched value
 
 players[1] = "0 people"
 watcher:view_all()
+print(players[1]) -- "0 people"
 watcher:roll_back()
-print(players[1])
+print(players[1]) -- "me"
 ```
 
 ## Roblox
