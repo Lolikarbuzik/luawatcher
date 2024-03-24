@@ -66,10 +66,11 @@ function Watcher:view_all(instance: Instance)
 end
 
 function Watcher:watch(instance: Instance)
-    print("watching", instance)
+    --print("watching", instance)
     local id = instance
     self.history[id] = {} 
     local ihistory = self.history[id]
+    -- We have to create a cloned instance since Instance.Change events call functions after the change and without the new value
     local copy_instance = instance:Clone()
     for child in instance:GetDescendants() do
         self:watch(child)   
@@ -120,7 +121,7 @@ function Watcher:watch(instance: Instance)
 end
 
 function Watcher:stop_watch(instance: Instance)
-    print("stopped watching", instance)
+    --print("stopped watching", instance)
     local watches = self.watches[instance]
     if watches == nil then
         return
@@ -135,7 +136,7 @@ function Watcher:roll_back(instance: Instance)
     local ihistory = self.history[instance]
     -- Goes from bottom to top
     -- Or earliest to latest
-    print("ROLLING BACK", instance)
+    --print("ROLLING BACK", instance)
     for i = #ihistory, 1, -1 do
         self:roll_back_step(instance, ihistory[i])
     end
