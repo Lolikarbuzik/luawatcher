@@ -2,6 +2,7 @@ mod build;
 mod datatypes;
 mod error;
 mod parsers;
+mod util;
 
 use build::build;
 use clap::Parser;
@@ -22,7 +23,9 @@ pub fn build_from_path(path: &str, args: &Args) -> io::Result<String> {
             if let Ok(paths) = fs::read_dir(path) {
                 for fpath in paths {
                     let fpath = fpath.unwrap();
-                    build_from_path(fpath.path().to_str().unwrap(), args)?;
+                    let fpath = fpath.path();
+                    let fpath = fpath.to_str().unwrap();
+                    build_from_path(fpath, args)?;
                 }
             }
         } else {
@@ -37,7 +40,7 @@ fn main() -> io::Result<()> {
     match args.command {
         RunType::Build => {
             let instant = Instant::now();
-            build_from_path(&args.path, &args).unwrap();
+            build_from_path(&args.path, &args)?;
             println!(
                 "Finished building \"{}\" in {}ms",
                 &args.path,

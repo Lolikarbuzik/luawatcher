@@ -6,7 +6,7 @@ local function foo(x, y)
     return x + y
 end
 
-local foo2 = function(x, y, z)
+local foo2 = ____LUAWATCHER:watch(function(x,, "foo2") y, z)
     return x + y + z
 end
 ____LUAWATCHER:print_history()

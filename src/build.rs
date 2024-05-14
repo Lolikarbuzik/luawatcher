@@ -2,19 +2,28 @@ use super::parsers::{local_functions, local_variables};
 use regex::Regex;
 use std::{fs, io, time::Instant};
 
-use crate::datatypes::{Args, LuaScope};
+use crate::{
+    datatypes::{Args, LuaScope},
+    util::write_path,
+};
 
 const RUNTIME_START_PAYLOAD: &str =
     "-- LuaWatcher build file\nlocal ____LW_RT = require(\"{}\")\nlocal ____LUAWATCHER = ____LW_RT.new()\n";
 const RUNTIME_END_PAYLOAD: &str = "\n____LUAWATCHER:print_history()";
 
 pub fn build(path: &str, args: &Args) -> io::Result<String> {
+    // TODO try to ignore first dir in the path?
+    // test/functions.lua -> build/functions.lua
+    // test/scopes/scopes.lua -> build/scopes/scopes.lua
+    if !fs::metadata("build/").is_ok() {
+        fs::create_dir("build/").unwrap();
+    }
     let instant = Instant::now();
-    let file_name = path.replacen("\\", "/", 20);
-    let file_name = file_name.split("/").last().unwrap();
-    let write_path = String::from("build/") + file_name;
+    let path = path.replacen("\\", "/", 20);
+    let split = path.split("/").collect::<Vec<&str>>();
+    let file_name = split.last().unwrap();
 
-    let mut contents = fs::read_to_string(path)?;
+    let mut contents = fs::read_to_string(&path)?;
     if path.ends_with(".lua") {
         contents = Regex::new("--.*")
             .unwrap()
@@ -50,6 +59,5 @@ pub fn build(path: &str, args: &Args) -> io::Result<String> {
             instant.elapsed().as_millis()
         );
     }
-    fs::write(&write_path, contents)?;
-    Ok(write_path)
+    write_path(&path, contents)
 }
